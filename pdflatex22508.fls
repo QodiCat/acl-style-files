@@ -1,0 +1,5 @@
+PWD C:/Users/Qodi/Desktop/EMNLP/acl-style-files
+INPUT c:/texlive/2025/texmf.cnf
+INPUT c:/texlive/2025/texmf-dist/web2c/texmf.cnf
+INPUT c:/texlive/2025/texmf-var/web2c/pdftex/pdflatex.fmt
+INPUT acl_latex.tex

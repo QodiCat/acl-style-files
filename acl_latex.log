@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2025) (preloaded format=pdflatex 2025.5.15)  25 MAY 2026 22:48
+This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2025) (preloaded format=pdflatex 2025.5.15)  25 MAY 2026 22:56
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -557,7 +557,7 @@ File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 File: mt-msb.cfg 2005/06/01 v1.0 microtype config. file: AMS symbols (b) (RS)
 )
 
-<main_1.pdf, id=112, 742.20586pt x 421.49771pt>
+<main_1.pdf, id=108, 742.20586pt x 421.49771pt>
 File: main_1.pdf Graphic file (type pdf)
 <use main_1.pdf>
 Package pdftex.def Info: main_1.pdf  used on input line 134.
@@ -577,37 +577,27 @@ LaTeX Font Info:    Trying to load font information for TS1+ptm on input line 14
 File: ts1ptm.fd 2001/06/04 font definitions for TS1/ptm.
 )
 
-<main_2.pdf, id=186, 728.26277pt x 500.9202pt>
+<main_2.pdf, id=182, 728.26277pt x 500.9202pt>
 File: main_2.pdf Graphic file (type pdf)
 <use main_2.pdf>
 Package pdftex.def Info: main_2.pdf  used on input line 154.
 (pdftex.def)             Requested size: 386.96027pt x 266.15906pt.
 
-Underfull \hbox (badness 1895) in paragraph at lines 163--164
-\T1/ptm/m/n/10.95 (+20) ma-tion ([][]Brown et al.[][], [][]2020[][]; [][]Ton-moy et al.[][],
- []
-
-
-Underfull \hbox (badness 1242) in paragraph at lines 163--164
-\T1/ptm/m/n/10.95 (+20) tral chal-lenge is to in-te-grate new knowl-edge
- []
-
-
 
 [2]
+Underfull \vbox (badness 3029) has occurred while \output is active []
+
+
 
 
 
 [3 <./main_2.pdf>]
-
-
 Underfull \hbox (badness 1122) in paragraph at lines 231--232
 []\T1/ptm/m/n/10.95 (+20) This log-i-cal ver-i-fi-ca-tion loop helps con-trol
  []
 
 
 
-[4]
 Package hyperref Info: bookmark level for unknown algorithm defaults to 0 on input line 249.
 
 Underfull \hbox (badness 1635) in paragraph at lines 262--263
@@ -615,18 +605,13 @@ Underfull \hbox (badness 1635) in paragraph at lines 262--263
  []
 
 
-Underfull \hbox (badness 1527) in paragraph at lines 247--285
-[]\T1/ptm/m/n/10.95 (+20) These meth-ods op-ti-mize the over-all ob-jec-
- []
 
-
-
-
-
-[5]
+[4]
 Overfull \hbox (36.38809pt too wide) detected at line 313
 [][][]\OMS/cmsy/m/n/10.95 L[] \OT1/cmr/m/n/10.95 = [] +\OML/cmm/m/it/10.95 ^^U \OMS/cmsy/m/n/10.95 ^^A []
  []
+
+
 
 
 Overfull \hbox (1.65279pt too wide) detected at line 340
@@ -635,45 +620,42 @@ Overfull \hbox (1.65279pt too wide) detected at line 340
 
 
 
-LaTeX Font Info:    Trying to load font information for T1+zi4 on input line 370.
-(c:/texlive/2025/texmf-dist/tex/latex/inconsolata/t1zi4.fd
-File: t1zi4.fd 2018/01/14 T1/zi4 (Inconsolata)
-)
-LaTeX Font Info:    Font shape `T1/zi4/m/n' will be
-(Font)              scaled to size 10.95pt on input line 370.
-Package microtype Info: Loading generic protrusion settings for font family
-(microtype)             `zi4' (encoding: T1).
-(microtype)             For optimal results, create family-specific settings.
-(microtype)             See the microtype manual for details.
-
-Overfull \hbox (37.61955pt too wide) in paragraph at lines 390--425
+[5]
+Overfull \hbox (37.61955pt too wide) in paragraph at lines 377--412
  [][] 
  []
 
 
-
-[6{c:/texlive/2025/texmf-dist/fonts/enc/dvips/inconsolata/i4-t1-0.enc}]
-
-
-Underfull \hbox (badness 4805) in paragraph at lines 434--435
-\T1/ptm/m/n/10.95 (+20) EWC ([][]Kirk-patrick et al.[][], [][]2017[][]), a clas-sic
+Underfull \hbox (badness 5175) in paragraph at lines 417--418
+\T1/ptm/m/n/10.95 (+20) We use four stan-dard bench-marks: Bank-
  []
 
 
 
-[7]
-Overfull \hbox (13.3277pt too wide) detected at line 456
+
+Overfull \hbox (13.3277pt too wide) detected at line 441
 [][][]\OML/cmm/m/it/10.95 FWT \OT1/cmr/m/n/10.95 = [] [] []
  []
 
 
-Underfull \hbox (badness 3364) in paragraph at lines 460--461
+Underfull \hbox (badness 3364) in paragraph at lines 445--446
 \T1/ptm/m/n/10.95 (+20) CSLF's su-pe-rior per-for-mance across di-verse
  []
 
 
-Underfull \hbox (badness 7832) in paragraph at lines 460--461
+Underfull \hbox (badness 7832) in paragraph at lines 445--446
 \T1/ptm/m/n/10.95 (+20) 75.12%/74.01%, sur-pass-ing the second-best
+ []
+
+
+
+[6]
+
+
+
+[7] (./acl_latex.bbl
+Underfull \hbox (badness 1622) in paragraph at lines 25--28
+[]\T1/ptm/m/n/10 (+20) Iñigo Casanueva, Tadas Tem£i-nas, Daniela Gerz,
  []
 
 
@@ -681,108 +663,100 @@ Underfull \hbox (badness 7832) in paragraph at lines 460--461
 
 
 [8]
-
-(./acl_latex.bbl
-Underfull \hbox (badness 1622) in paragraph at lines 30--33
-[]\T1/ptm/m/n/10 (+20) Iñigo Casanueva, Tadas Tem£i-nas, Daniela Gerz,
- []
-
-
-
-[9]
-
-
-Underfull \hbox (badness 1320) in paragraph at lines 145--148
+Underfull \hbox (badness 1320) in paragraph at lines 140--143
 []\T1/ptm/m/n/10 (+20) Yan-Shuo Liang and Wu-Jun Li. 2024.  In-flora:
  []
 
 
-
-[10]
-Underfull \hbox (badness 1292) in paragraph at lines 160--163
+Underfull \hbox (badness 1292) in paragraph at lines 155--158
 \T1/ptm/m/n/10 (+20) ule ex-pan-sion and adap-ta-tion.  \T1/ptm/m/it/10 (+20) arXiv preprint
  []
 
 
 
 
-Underfull \hbox (badness 1043) in paragraph at lines 210--213
+Underfull \hbox (badness 1043) in paragraph at lines 200--203
 \T1/ptm/m/n/10 (+20) ing with low rank adap-ta-tion.  \T1/ptm/m/it/10 (+20) arXiv preprint
  []
 
-)
-
-[11]
 
 
-Overfull \hbox (4.55045pt too wide) in paragraph at lines 573--574
+[9])
+
+
+
+[10
+
+]
+
+
+Overfull \hbox (4.55045pt too wide) in paragraph at lines 554--555
 [] []$\OT1/cmr/bx/n/10.95 h[] \OT1/cmr/m/n/10.95 = []([\OML/cmm/m/it/10.95 d[]; d[]; [] ; d[]\OT1/cmr/m/n/10.95 ])$ 
  []
 
 
-Underfull \vbox (badness 2042) has occurred while \output is active []
+LaTeX Warning: `h' float specifier changed to `ht'.
 
 
+LaTeX Warning: `h' float specifier changed to `ht'.
 
-[12]
-Underfull \hbox (badness 2726) in paragraph at lines 615--616
+
+Underfull \hbox (badness 2726) in paragraph at lines 596--597
 \T1/ptm/m/n/10.95 (+20) The se-man-tic ex-trac-tion mod-ule uti-lizes the
  []
 
 
 
+[11
 
-Overfull \hbox (9.72871pt too wide) in paragraph at lines 655--668
+]
+
+
+
+[12]
+Overfull \hbox (9.72871pt too wide) in paragraph at lines 636--649
  [][] 
  []
 
 
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-
-
-[13]
-Overfull \hbox (69.31944pt too wide) in paragraph at lines 678--689
+Overfull \hbox (69.31944pt too wide) in paragraph at lines 659--670
  [][] 
  []
 
 
 
 
-Overfull \hbox (1.4163pt too wide) in paragraph at lines 705--706
+Overfull \hbox (1.4163pt too wide) in paragraph at lines 686--687
 \T1/ptm/m/n/10.95 (-20) different classifications. Example: ``transfer money''
  []
 
 
-LaTeX Warning: `h' float specifier changed to `ht'.
+
+[13]
 
 
 
-[14]
-
-
-
-[15] (./acl_latex.aux)
+[14] (./acl_latex.aux)
  ***********
 LaTeX2e <2024-11-01> patch level 2
 L3 programming layer <2025-04-29>
  ***********
 Package rerunfilecheck Info: File `acl_latex.out' has not changed.
-(rerunfilecheck)             Checksum: 044F2132B956AC09B3213E646F636AF5;3879.
+(rerunfilecheck)             Checksum: F53031874318D633056BC9D13DFCBBEB;3752.
  ) 
 Here is how much of TeX's memory you used:
- 16853 strings out of 469590
- 263350 string characters out of 5474519
- 718999 words of memory out of 5000000
- 42902 multiletter control sequences out of 15000+600000
- 691060 words of font info for 333 fonts, out of 8000000 for 9000
+ 16810 strings out of 469590
+ 262468 string characters out of 5474519
+ 715702 words of memory out of 5000000
+ 42866 multiletter control sequences out of 15000+600000
+ 690816 words of font info for 333 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  84i,17n,93p,1939b,713s stack positions out of 10000i,1000n,20000p,200000b,200000s
-<c:/texlive/2025/texmf-dist/fonts/type1/public/inconsolata/Inconsolata-zi4r.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx8.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmex8.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb><c:/texlive/2025/texmf-dist/fonts/type1/urw/helvetic/uhvb8a.pfb><c:/texlive/2025/texmf-dist/fonts/type1/urw/times/utmb8a.pfb><c:/texlive/2025/texmf-dist/fonts/type1/urw/times/utmr8a.pfb><c:/texlive/2025/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on acl_latex.pdf (15 pages, 661464 bytes).
+<c:/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx8.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmex8.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb><c:/texlive/2025/texmf-dist/fonts/type1/urw/helvetic/uhvb8a.pfb><c:/texlive/2025/texmf-dist/fonts/type1/urw/times/utmb8a.pfb><c:/texlive/2025/texmf-dist/fonts/type1/urw/times/utmr8a.pfb><c:/texlive/2025/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
+Output written on acl_latex.pdf (14 pages, 639518 bytes).
 PDF statistics:
- 750 PDF objects out of 1000 (max. 8388607)
- 645 compressed objects within 7 object streams
- 194 named destinations out of 1000 (max. 500000)
- 60603 words of extra memory for PDF output out of 61914 (max. 10000000)
+ 722 PDF objects out of 1000 (max. 8388607)
+ 620 compressed objects within 7 object streams
+ 190 named destinations out of 1000 (max. 500000)
+ 60083 words of extra memory for PDF output out of 61914 (max. 10000000)
 

@@ -127,7 +127,7 @@ Mitigating catastrophic forgetting in continual learning is crucial. Existing me
 \end{abstract}
 \section{Introduction}
 
-The ability of machine learning models to continuously acquire new knowledge has become a critical requirement~\cite{1,2}. When a model is trained on a new task, it may overwrite the parameters learned from previous tasks, which leads to catastrophic forgetting~\cite{3}. To address catastrophic forgetting, researchers have proposed various strategies. Early approaches, such as elastic weight consolidation (EWC)~\cite{ewc_2017} and memory replay~\cite{mem_2022}, aim to preserve critical parameters or replay old data to retain past knowledge. More recently, a promising direction has emerged: parameter separation~\cite{lora,lester2021power,li2021prefix}. This paradigm involves separating and fine-tuning parameters for different tasks, such that each task is associated with a dedicated subset of parameters. By isolating the parameter spaces of different tasks, these methods seek to prevent interference between new and old knowledge, thereby reducing forgetting~\cite{pre_2024_cor,pre_2022_3}. However, despite significant progress, existing methods still have critical limitations.
+Continual adaptation is essential for deployed NLP systems, but training on new tasks often overwrites old knowledge and causes catastrophic forgetting~\cite{1,2,3}. Existing solutions include regularization (e.g., EWC~\cite{ewc_2017}), replay~\cite{mem_2022}, and, most effectively in recent LLM settings, parameter separation~\cite{lora,lester2021power,li2021prefix,pre_2024_cor,pre_2022_3}. Although separation reduces direct parameter conflict, current pipelines still suffer from non-trivial cross-task interference.
 
 \begin{figure}[t]
     \centering
@@ -160,10 +160,10 @@ and dynamic activation of task-specific models. Extensive experiments on multipl
 
 \subsection{Continual Learning}
 
-Traditional training methods, which rely on static datasets to train large language models (LLMs), are increasingly inadequate for handling the dynamic and evolving nature of real-world information~\cite{brown2020language,tonmoy2024comprehensivesurveyhallucinationmitigation}. Continual learning~\cite{rw2} enables LLMs to adapt and learn throughout their lifecycle~\cite{rw3}. The central challenge is to integrate new knowledge while retaining previously acquired information, thereby avoiding catastrophic forgetting. Prior research has explored various approaches, mainly including regularization-based methods, replay-based methods, and architecture-based methods. Regularization-based methods~\cite{chen2020recall,liu2023class} penalize changes to weights that are important for previous tasks, thus preserving their performance; however, inaccurate identification of such weights can hinder learning efficiency on new tasks. Replay-based methods are primarily divided into experience replay and generative replay. Experience replay~\cite{liu2021domain} maintains performance on prior tasks by re-exposing the model to old data, thereby reinforcing existing knowledge. Generative replay~\cite{qin2021lfpt5}, on the other hand, does not store actual data but uses the model itself or a separate generative model to produce samples of previous data. However, this approach still requires data storage, raising concerns about data security and storage overhead~\cite{huang2024mitigating}. Architecture-based methods~\cite{zheng2024beyond}, benefiting from recent advances in parameter-efficient fine-tuning, either introduce new components within the model or employ parameter separation strategies, achieving significant breakthroughs in continual learning.
+Continual learning for LLMs aims to absorb new data streams without degrading prior tasks~\cite{rw2,rw3}. Main families are regularization~\cite{chen2020recall,liu2023class}, replay~\cite{liu2021domain,qin2021lfpt5,huang2024mitigating}, and architecture-based methods~\cite{zheng2024beyond}. Regularization and replay are effective but can constrain plasticity or increase storage/privacy cost. Architecture-based methods, especially with PEFT, are therefore increasingly preferred.
 
 \subsection{Methods Based on Parameter Separation}
-Parameter separation~\cite{wang2023orthogonal,wistuba2023continual} is one of the most important architecture-based approaches in continual learning, as it effectively minimizes interference between tasks. Moreover, with the increasing size of models such as LLaMA-65B~\cite{touvron2023llama} and GLM-130B~\cite{zeng2022glm}, full-parameter fine-tuning becomes prohibitively expensive. Below is a concise overview of two prominent parameter separation methods for continual learning. First, Adapters~\cite{houlsby2019parameter} insert small bottleneck-structured feed-forward networks between layers, providing a lightweight mechanism for task adaptation. LAFT-URIEL~\cite{badola2022parameter} enhances performance by integrating feature guidance into adapters. TSS~\cite{ke2023sub} introduces a soft-masking mechanism to adapters, further improving their adaptability. LoRA~\cite{lora} is another foundational method. It integrates low-rank matrices into specific layers of the pre-trained model, enabling efficient adaptation with minimal parameter updates. Wistuba et al.~\cite{wistuba2023continual} propose CoLoR, which incorporates the LoRA mechanism into continual learning. Subsequent works~\cite{i_lora,inf_lora} introduce additional techniques to LoRA, including the integration of data replay and other enhancements.
+Parameter separation is a dominant architecture-based direction~\cite{wang2023orthogonal,wistuba2023continual}, particularly for large backbones where full tuning is impractical~\cite{touvron2023llama,zeng2022glm}. Representative implementations include Adapter variants~\cite{houlsby2019parameter,badola2022parameter,ke2023sub} and LoRA-based methods~\cite{lora,wistuba2023continual,i_lora,inf_lora}. Despite strong forgetting resistance, most of them still rely on task routing signals that are noisy or insufficiently semantic.
 
 \section{Methodology}
 Given a series of  tasks $ T_1, \ldots, T_N $, where the total number of tasks is $ N $, each task  $ T_i $ introduces $ G $ new classes $ Y_i = \{Y_i^1, \ldots,Y_i^g \ldots,Y_i^G\} $. Each new class contains $ h $ labeled examples, represented as data pairs $ (x_{i,g}^{j}, y_{i,g}^{j},j=1, \ldots, h) $.  The learner's objective is to learn or optimize the current parameters $ \Theta $ such that the average categorical loss across all tasks, $ \frac{1}{N} \sum_{i \in \{1, \ldots, N\}} \mathcal{L}(T_i; \Theta) $, is minimized. The challenge of continual learning lies in the fact that these tasks cannot be learned all at once, but must be acquired one by one.
@@ -244,7 +244,7 @@ In the inference stage, backbone obtains the semantic-space activation vector $\
     \mathbf{h}_{sem} = \text{Backbone}(\mathcal{S}', x_i)
 \end{equation}
 
-These methods optimize the overall objective—achieving precise context response generation via hierarchical information filtering (macro-level concept guidance and micro-level semantic calibration), ultimately building a dynamic learning system with both conceptual abstraction and instance-level semantic fidelity. For any input sentence $x_i$, the output is a semantic-space activation vector $\mathbf{h}_{sem}$. For a detailed overview of the training process, please refer to Algorithm 1.
+For any input sentence $x_i$, the module outputs a semantic-space activation vector $\mathbf{h}_{sem}$. For a detailed overview of the training process, please refer to Algorithm 1.
 \begin{algorithm}[t]
 \caption{Dynamic Task Category Semantic Extraction Module}
 \begin{algorithmic}[1]
@@ -288,9 +288,9 @@ These methods optimize the overall objective—achieving precise context respons
 
 
 
-A single semantic representation may perform poorly in some cases because the model has not learned the relevant concepts in its prior knowledge. Therefore, it is necessary to introduce deep features for task classification.
+Semantic routing can be unreliable when prior knowledge is weak. We therefore add a latent-feature stream for complementary task discrimination.
 
-First, the input text is fed into the feature extractor plugin. This plugin adopts a hierarchical feature fusion strategy, constructing a composite feature representation by concatenating latent features from all interval layers, thereby retaining both shallow local features and deep global features. These fused features are then input into the points mapper, which maps the features to a high-dimensional vector space. In this space, each task is assigned a unique coordinate position. To enhance task discrimination, we specifically design a task preference loss function, which optimizes the feature representation of the current task to be as close as possible to the coordinate point corresponding to its task ID, while being far from the mapping positions of other tasks, thus achieving unsupervised task separation.
+
 
 Specifically, the input text is fed into the feature extractor plugin. This plugin adopts a hierarchical feature fusion strategy, constructing a composite feature representation by concatenating latent features from all interval layers.  The latent feature of the $i$-th layer is $  \mathbf{f}_i \in \mathbb{R}^{d_i}  $ ($  d_i  $ is the feature dimension of the $i$-th layer). The composite feature representation is:
 \begin{equation}
@@ -328,7 +328,7 @@ The latent feature space activation vector $\mathbf{h}_{lat}$ is then derived by
 
 
 
-The semantic space and latent feature space often generate distinct activation vectors. The effectiveness of each varies dynamically with the input sample distribution and task scenario. To address the dynamic balance of activation vectors, we leverage an attention mechanism to dynamically adjust their weights. The core idea is to evaluate the activation quality of both spaces in real time, assigning higher weights to more reliable vectors while suppressing those with higher error rates, ensuring that the representations from both spaces remain independent.
+Semantic and latent streams provide complementary activations with input-dependent reliability. We use attention with error-aware correction to reweight them online.
 
 First,  $\mathbf{h}_{sem}$ and $\mathbf{h}_{lat}$ are concatenated into a fused feature $\mathbf{h}_{concat} = [\mathbf{h}_{sem}; \mathbf{h}_{lat}]$, which serves as the input to the scorer. Then, compute the attention weights by introducing a learnable attention query vector $\mathbf{w}_q$ and calculating the attention for each vector via inner product:
 
@@ -362,19 +362,6 @@ $\mathbf{h}_{final}$ is then used for the final classification task, where the t
     \text{Model ID} = \arg\max_i \mathbf{h}_{final}[i]
 \end{equation}
 During the inference phase, the task-specific model ID for the current sample is first determined using $\mathbf{h}_{final}$. The sample is then routed to the corresponding task-specific model for prediction, yielding the final classification result.
-
-
-
-
-To produce a PDF file, pdf\LaTeX{} is strongly recommended (over original \LaTeX{} plus dvips+ps2pdf or dvipdf).
-The style file \texttt{acl.sty} can also be used with
-lua\LaTeX{} and
-Xe\LaTeX{}, which are especially suitable for text in non-Latin scripts.
-The file \texttt{acl\_lualatex.tex} in this repository provides
-an example of how to use \texttt{acl.sty} with either
-lua\LaTeX{} or
-Xe\LaTeX{}.
-
 
 
 
@@ -426,12 +413,10 @@ CSLF(Ours) & \textbf{78.21} & \textbf{75.18} & \textbf{72.12} & \textbf{70.93} &
 \label{tab:main-results}
 \end{table*}
 
-We conduct extensive experiments to evaluate the performance of the CSLF framework across various downstream tasks. 
-\subsubsection{Datasets.} To comprehensively evaluate the effectiveness and generalizability of CSLF, we conduct experiments on four widely-used benchmark datasets spanning diverse downstream tasks: intent recognition, relation extraction, named entity recognition, and text classification. Specifically, we use Banking77~\cite{casanueva2020efficient} for intent detection in the banking domain , FewRel~\cite{han2018fewrel} for relation extraction (80 classes, 8 tasks, 10 classes per increment), Few-NERD~\cite{ding2021few} for fine-grained named entity recognition (66 classes, 11 tasks, 6 classes per increment), and CLINC150~\cite{ethayarajh2019contextual} for multi-domain text classification (150 classes, 15 tasks, 10 classes per increment). This broad selection covers both sentence-level and token-level continual learning scenarios, ensuring a thorough and robust assessment of CSLF across a wide range of real-world applications.
+We evaluate CSLF on diverse NLP continual learning benchmarks. 
+\subsubsection{Datasets.} We use four standard benchmarks: Banking77~\cite{casanueva2020efficient}, FewRel~\cite{han2018fewrel}, Few-NERD~\cite{ding2021few}, and CLINC150~\cite{ethayarajh2019contextual}, covering intent detection, relation extraction, NER, and text classification under incremental settings.
 
-\subsubsection{Baselines.} We compare CSLF with several strong baselines, including classic regularization-based and replay-based methods, as well as the latest parameter separation approaches. Parameter separation is mainly implemented via Adapters and LoRA techniques, establishing a more comprehensive comparison framework.
-
-SEQ (Sequential Fine-tuning) serves as the lower bound for continual learning performance; EWC~\cite{ewc_2017}, a classic regularization-based method, mitigates forgetting by selectively slowing down the learning of weights important for previous tasks; DER++~\cite{derpp}, a representative replay-based method, maintains performance by replaying stored samples from previous tasks; DMEA~\cite{dmea} implements task-specific parameter separation using the Adapter technique; InfLoRA~\cite{inf_lora} achieves parameter separation via LoRA, originally proposed for vision tasks, and we re-implement it for NLP tasks; I-LoRA~\cite{i_lora} combines data replay and LoRA-based parameter separation to improve continual learning.
+\subsubsection{Baselines.} We compare against SEQ, EWC~\cite{ewc_2017}, DER++~\cite{derpp}, and recent parameter-separation methods DMEA~\cite{dmea}, InfLoRA~\cite{inf_lora}, and I-LoRA~\cite{i_lora}.
 
 \subsubsection{Implementation Details.}  CSLF is trained on a single NVIDIA A100 GPU with 80GB memory. The training batch size is set from 4 to 16, and the learning rate is initialized at 1e-5. The task-specific model employs LoRA for efficient parameter adaptation. The rank of LoRA is 4. The scaling of LoRA is 8. The dropout rate of LoRA is 0.1.
 
@@ -485,15 +470,12 @@ The experimental results in Table~\ref{tab:main-results} highlight CSLF's superi
 \end{table}
 
 
-The improvements are consistent across both Llama-3-8B and Qwen-3-14B backbones, showcasing the robustness and generalizability of our dual-stream architecture. Notably, the dynamic task category semantic extraction module enables CSLF to leverage prior knowledge for better task classification, while the task latent feature abstraction module provides complementary discriminative features. The adaptive gated fusion mechanism further enhances performance by dynamically balancing the contributions of semantic and latent spaces. These results validate CSLF's ability to achieve true parameter isolation and avoid interference among tasks, making it a promising paradigm for continual learning across various NLP tasks.
-
-Table~\ref{tab:transfer-results} presents BWT and FWT results for CSLF and baseline methods on the Llama-3-8B model. 
-As a negative baseline, SEQ suffers from severe catastrophic forgetting, as evidenced by its large negative BWT and FWT, highlighting the limitations of naive sequential learning. Classic strategies such as EWC and DER++ alleviate forgetting compared to SEQ. Overall, these classic approaches vary in their ability to balance old and new tasks, but all lack targeted optimization. Parameter separation methods (such as DMEA, InfLoRA, and I-LoRA) outperform classic strategies by significantly reducing forgetting and improving new task gains, demonstrating the inherent advantage of parameter isolation in balancing knowledge retention and acquisition. Our proposed CSLF achieves the best performance, minimizing forgetting (BWT closest to zero) and maximizing new task gains (highest FWT), thus perfectly balancing the needs of both old and new tasks and validating its effectiveness for continual learning scenarios. 
+Table~\ref{tab:transfer-results} further confirms this trend: CSLF achieves the best BWT and FWT, indicating both less forgetting and stronger forward transfer than existing separation-based methods.
 
 
 \subsection{Ablation Study and Analysis}
 
-To evaluate the contributions of each component in CSLF, we conducted ablation studies on the Banking77 dataset, as shown in Table~\ref{tab:ablation}. Results show that the semantic component effectively leverages inherent knowledge for task classification, while the latent feature component provides complementary discriminative information. Specifically, the semantic module alone yields significant improvements over baselines, highlighting the value of pre-trained knowledge, whereas the latent module excels in capturing abstract boundaries. Combining both components significantly improves performance, suggesting that the two streams capture orthogonal task characteristics. Furthermore, adding the attention mechanism enables dynamic weighting for better task classification. The error-aware gating mechanism further enhances adaptability by suppressing unreliable signals and selecting the most reliable stream. The full CSLF framework achieves the best performance, demonstrating the synergistic benefits of all components.
+Ablation results (Table~\ref{tab:ablation}) verify that both streams are necessary: semantic and latent modules are complementary, fusion outperforms either single stream, and error-aware gating yields the best final gains.
 
 
 \begin{table}[ht]
@@ -523,17 +505,16 @@ To evaluate the contributions of each component in CSLF, we conducted ablation s
 \end{table}
 
 \section{Discussion and Conclusions}
-In this paper, we propose a novel framework called the Cognitive-Semantic and Latent-Feature Dual-Stream Synergistic Architecture (CSLF) to mitigate catastrophic forgetting in continual learning. By focusing on activating the task-specific models, CSLF achieves true parameter isolation and avoids interference between different tasks. The design of key components, including a dynamic task category semantic extraction module and a task latent feature abstraction module, fully leverages the model's task semantic space and feature mapping space. Extensive experiments on multiple downstream tasks demonstrate the effectiveness of CSLF in enhancing robustness, interpretability, and adaptability in continual learning scenarios.
+We introduced CSLF, a dual-stream continual learning framework that performs semantic-aware task routing and latent-feature discrimination before activating task-specific adapters. Across four datasets and two LLM backbones, CSLF improves accuracy, reduces forgetting, and increases forward transfer over strong baselines.
 
 \bibliography{custom}
-
-\section{Example Appendix}
+\clearpage
+\appendix
 \label{sec:appendix}
 
-This is an appendix.
 
 
-\section*{A. The Theoretical Foundation of Cognitive Neuroscience}
+\section*{A  The Theoretical Foundation of Cognitive Neuroscience}
 
 The dual-process theory of cognitive neuroscience is a pivotal framework in psychology and cognitive neuroscience that explains the mechanisms underlying human thinking and decision-making. Its core proposition is that human cognitive processes are executed through the synergistic interaction of two fundamentally distinct systems (or processing modes). The theory posits that human cognitive activities are governed by two systems: ``System~1'' (the intuitive system) and ``System~2'' (the analytical system), which differ significantly in terms of processing styles, functions, and neural substrates. System~1 (intuitive system) is characterized by rapid, automatic, unconscious processing that requires no deliberate effort, relying on experience and intuition for judgment---such as facial recognition or understanding simple sentences. Its functional advantage lies in its ability to respond swiftly in complex environments, conserve cognitive resources, and is well-suited for routine simple tasks or emergency situations. However, it is susceptible to biases, emotions, and stereotypes, potentially leading to irrational judgments, and is primarily associated with brain regions such as the limbic system (e.g., the amygdala) and the basal ganglia. In contrast, System~2 (analytical system) involves slow, controlled, conscious processing that demands active effort, relying on logical reasoning, abstract thinking, and rule application---for instance, solving complex mathematical problems or formulating long-term plans. Its strength lies in overcoming intuitive biases, enabling in-depth analysis and rational decision-making, making it suitable for complex, unfamiliar, or high-risk tasks. Nevertheless, it consumes substantial cognitive resources and operates with lower efficiency, primarily linked to brain regions such as the prefrontal cortex.
 
@@ -541,7 +522,7 @@ This theory holds extensive significance and applications across multiple domain
 
 The dual-process theory directly inspires the design of the CSLF framework. In CSLF, the semantic extraction module corresponds to the ``System 2'' analytical process, performing deeper, more controlled semantic reasoning and abstraction. The latent feature abstraction module parallels ``System 1,'' rapidly and automatically capturing task-specific latent representations with minimal computational overhead. The adaptive gated fusion mechanism embodies the dynamic collaboration between the two systems, allowing the model to flexibly balance analytical and intuitive signals based on task demands and error feedback. This dual-stream architecture enables CSLF to effectively mitigate catastrophic forgetting by leveraging both deliberate, reasoning-driven generalization and fast, experience-driven adaptation, closely mirroring the complementary strengths of human cognition as described by the dual-process theory.
 
-\section*{B. Other Algorithmic Details}
+\section*{B  Other Algorithmic Details}
 
 \subsection*{B.1 Task Latent Feature Abstraction Module}
 
@@ -607,7 +588,7 @@ Algorithm 2 details the adaptive gated fusion mechanism that dynamically balance
 \end{algorithmic}
 \end{algorithm}
 
-\section*{C. Implementation Details}
+\section*{C  Implementation Details}
 
 \subsection*{C.1 Network Architecture Specifications}
 
@@ -646,7 +627,7 @@ Weight Decay & 0.01 \\
 
 The hyperparameters listed in Table~\ref{tab:training-hyperparams} are carefully selected to ensure stable and efficient training of the CSLF framework. The adaptive batch size and linear learning rate decay help balance convergence speed and generalization. A relatively long maximum sequence length (2048 tokens) allows the model to handle complex and lengthy inputs. LoRA-specific parameters (rank, alpha, dropout) are tuned for parameter-efficient adaptation. Warmup steps and gradient clipping further stabilize training, while a moderate weight decay helps prevent overfitting. These settings collectively contribute to the robust performance of CSLF across various continual learning tasks.
 
-\section*{D. Extended Experimental Results}
+\section*{D  Extended Experimental Results}
 
 \subsection*{D.1 Per-Task Performance Analysis}
 
@@ -696,7 +677,7 @@ Table~\ref{tab:memory-efficiency} compares the memory efficiency of different co
 
 The convergence behavior of CSLF shows stable learning curves across different tasks. The semantic module typically converges within 1000 steps, while the latent feature module requires 2000-3000 steps for optimal performance. The adaptive fusion mechanism continuously adjusts throughout training, with error rates stabilizing after approximately 1500 steps.
 
-\section*{E. Error Analysis and Case Studies}
+\section*{E  Error Analysis and Case Studies}
 
 \subsection*{E.1 Common Error Patterns}
 
@@ -712,7 +693,7 @@ In the Banking77 dataset, we observe that 78\% of errors are concentrated in sem
 
 CSLF's dual-stream approach reduces these errors by 34\% compared to single-stream methods, demonstrating the effectiveness of combining semantic and latent information.
 
-\section*{F. Hyperparameter Sensitivity Analysis}
+\section*{F  Hyperparameter Sensitivity Analysis}
 
 \subsection*{F.1 Error Penalty Coefficient $\beta$}
 
@@ -743,7 +724,7 @@ Table~\ref{tab:beta-sensitivity} shows the performance sensitivity of CSLF to th
 The task preference loss weight $\lambda$ significantly affects the separation quality in the latent space. Our experiments show that $\lambda = 0.5$ provides the optimal balance between attraction and repulsion terms across all datasets.
 
 
-\section*{G. Future Research Directions}
+\section*{G  Future Research Directions}
 
 Based on our work, several promising research directions emerge:
 
@@ -780,5 +761,6 @@ To facilitate reproducibility, we report the hardware configuration used in our 
 \end{itemize}
 
 \end{document}
+
 
 
