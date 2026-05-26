@@ -168,13 +168,13 @@ Parameter separation~\cite{wang2023orthogonal,wistuba2023continual} is a crucial
 \section{Methodology}
 Given a series of  tasks $ T_1, \ldots, T_N $, where the total number of tasks is $ N $, each task  $ T_i $ introduces $ G $ new classes $ Y_i = \{Y_i^1, \ldots,Y_i^g \ldots,Y_i^G\} $. Each new class contains $ h $ labeled examples, represented as data pairs $ (x_{i,g}^{j}, y_{i,g}^{j},j=1, \ldots, h) $.  The learner's objective is to learn or optimize the current parameters $ \Theta $ such that the average categorical loss across all tasks, $ \frac{1}{N} \sum_{i \in \{1, \ldots, N\}} \mathcal{L}(T_i; \Theta) $, is minimized. The challenge of continual learning lies in the fact that these tasks cannot be learned all at once, but must be acquired one by one.
 
-The framework of the proposed CSLF architecture is illustrated in Figure~\ref{fig:framework}. The architecture consists of three main modules: Dynamic Task Category Semantic Extraction Module, Task Latent Feature Abstraction Module, and adaptive Gated Fusion Mechanism to adaptively integrate all the information to enhance task classification performance ~\cite{attention,bahdanau2014neural}.
+The framework of the proposed CSLF architecture is illustrated in Figure~\ref{fig:framework}. The architecture consists of three main modules: Dynamic Task Category Semantic Extraction Module, Task Latent Feature Abstraction Module, and adaptive Gated Fusion Mechanism to integrate both signals for task routing~\cite{attention,bahdanau2014neural}.
 
-Our framework handles multiple tasks where each task requires learning new class categories. At the start of each task, we dynamically integrate the new task categories into the Semantic Extraction Module. This module leverages the semantics of existing classification categories to guide the model in assigning training samples to their appropriate model IDs at a coarse-grained level, without requiring precise category matching. Concurrently, training samples are processed by the Task Latent Feature Abstraction Module for latent feature extraction. Through task-preference loss computation, the module identifies the optimal model ID in the hidden space. Notably, when the semantic-space model ID demonstrates higher alignment confidence with the ground truth, the framework automatically reduces the decision weight of latent-space features through an adaptive gating mechanism. This dynamic weighting ensures robust feature representation across varying task conditions.
+Our framework handles multiple tasks where each task requires learning new class categories. At the start of task $T_t$, we inject its new class labels into the semantic stream and attach a unique task ID $t$ to the corresponding task-specific adapter. The semantic stream produces a task-activation vector from category semantics and a prompted backbone prediction, while the latent stream produces another activation vector from intermediate hidden states. The two vectors have the same dimensionality as the number of observed tasks and are fused before selecting the activated task-specific model. Importantly, the semantic stream is used as a non-differentiable routing signal, whereas the latent stream is trained end-to-end with the active task adapter and the points mapper. This division avoids backpropagating through discrete prompting decisions while preserving a fully trainable latent routing path. Detailed prompts, tensor shapes, and optimization behavior are provided in Appendix~H.
 
 \subsection{Dynamic Task Category Semantic Extraction Module}
 
-This module maintains a shared semantic pool $\mathcal{S} = \{ \langle \mathbf{c}_k, \mathbf{v}_k, \mathbf{e}_k \rangle \mid k = 1, 2, \dots, N \}$, where $\mathbf{c}_k$ denotes the categorical label texts that the $k$-th task contains. We make these labels point to the ID of the current task. $\mathbf{v}_k \in \mathbb{R}^d$ is its semantic vector representation, and $\mathbf{e}_k  \subseteq \mathcal{D}_k$ is a set of some representative samples from the full sample set $\mathcal{D}_k$ for task $k$. $\mathbf{e}_k$ is an empty set at the beginning of each task.
+This module maintains a shared semantic pool $\mathcal{S} = \{ \langle \mathbf{c}_k, \mathbf{v}_k, \mathbf{e}_k \rangle \mid k = 1, 2, \dots, N \}$, where $\mathbf{c}_k$ denotes the label texts associated with task $k$, $\mathbf{v}_k \in \mathbb{R}^{384}$ is the MiniLM embedding of the task description, and $\mathbf{e}_k \subseteq \mathcal{D}_k$ is a small exemplar buffer used to refine the task description. Each entry points to a unique task ID rather than to a fine-grained class ID, because the goal of this module is routing across task-specific adapters.
 
 \subsubsection{Dynamic Category Semantic Extraction.}
 
@@ -194,12 +194,12 @@ For a training batch $\mathcal{B} = \{ x_1, \dots, x_N \}$, we compute the simil
     \text{Sim}(x_i, \mathbf{v}_k) = \frac{\text{Embedding}(x_i) \cdot \mathbf{v}_k}{\|\text{Embedding}(x_i)\|_2 \|\mathbf{v}_k\|_2} 
 \end{equation}
 
-Leveraging similarity computation and sample text inputs, the backbone pretrained model effectively utilizes prior knowledge to perform reasoning, yielding the initial task-specific model activation result, denoted as $\mathbf{h}_{i}$.
+Let $\mathbf{s}_i = [\text{Sim}(x_i,\mathbf{v}_1), \ldots, \text{Sim}(x_i,\mathbf{v}_{|\mathcal{S}|})] \in \mathbb{R}^{|\mathcal{S}|}$ denote the similarity vector. We then build a prompted routing query by concatenating: (1) the input text $x_i$, (2) the top-$m$ nearest task descriptions ranked by $\mathbf{s}_i$, and (3) at most $b$ stored exemplars per candidate task. The backbone LLM is asked to output one task ID from the current candidate set. Concretely, $\text{Backbone}(x_i,\text{Sim}(x_i,\mathbf{v}_k))$ denotes this prompted forward pass and returns a task-score vector $\mathbf{h}_{i} \in \mathbb{R}^{|\mathcal{T}_{\le t}|}$ over the observed tasks:
 
 \begin{equation}
    \mathbf{h}_{i} = \text{Backbone}(x_i,\text{Sim}(x_i, \mathbf{v}_k)) 
 \end{equation}
-However, for entirely novel categories or fine-grained subcategories not encountered during pretraining, its performance tends to degrade. To address this, we employed an iterative verification-reflection-revision mechanism to enhance the process.
+The score vector is obtained from the normalized log-probabilities of the candidate task-ID strings. This semantic routing step uses the generative backbone only in forward mode, is not differentiated, and does not receive gradient updates from the routing loss. However, for entirely novel categories or fine-grained subcategories not encountered during pretraining, its performance tends to degrade. To address this, we employ an iterative verification-reflection-revision mechanism.
 
 The system evaluates the activation accuracy as follows:
 \begin{equation}
@@ -218,17 +218,7 @@ The average of all samples in this batch is then calculated.
 
 \subsubsection{Reflection and Revision.}
 
-If $\bar{r}$ falls below the threshold, it performs reflection and revision, and logs the misclassified samples.
-This logical verification loop helps control model hallucination risks within a reasonable range.
-Reflection and revision are performed as follows:
-
-(1) The model is guided to analyze intra-class cohesion.
-
-(2) The model is prompted to refine inter-class boundaries.
-
-(3)  Few samples of wrong analysis are recorded for few-shot inference, and $\mathbf{e}_{K+i}$ is revised accordingly.
-
-This logical verification loop helps control model hallucination risks within a reasonable range.
+If $\bar{r}$ falls below the threshold, we revise the semantic pool with a deterministic reflection procedure. Specifically, we collect the misrouted samples in the current batch, group them by predicted/true task pair, retain the top-$b$ highest-confidence errors per pair, and append them to the exemplar buffers $\mathbf{e}_k$. We then rebuild the task description by prompting the backbone to summarize: (1) the shared topic within each task, (2) the boundary to the most frequently confused neighboring task, and (3) short lexical cues extracted from the retained exemplars. The complete prompt template and update rules are reported in Appendix~H. This loop improves semantic routing without changing the backbone parameters.
 
 
 
@@ -238,7 +228,7 @@ Our approach ensures fine-grained category representation accuracy through conti
 \end{equation}
 
 
-In the inference stage, backbone obtains the semantic-space activation vector $\mathbf{h}_{sem}$ based on the updated semantic pool prediction $\mathcal{S}'$.
+In the inference stage, the backbone obtains the semantic-space activation vector $\mathbf{h}_{sem} \in \mathbb{R}^{|\mathcal{T}_{\le t}|}$ based on the updated semantic pool $\mathcal{S}'$.
 
 \begin{equation}
     \mathbf{h}_{sem} = \text{Backbone}(\mathcal{S}', x_i)
@@ -292,19 +282,19 @@ Semantic routing can be unreliable when prior knowledge is weak. We therefore ad
 
 
 
-Specifically, the input text is fed into the feature extractor plugin. This plugin adopts a hierarchical feature fusion strategy, constructing a composite feature representation by concatenating latent features from all interval layers.  The latent feature of the $i$-th layer is $  \mathbf{f}_i \in \mathbb{R}^{d_i}  $ ($  d_i  $ is the feature dimension of the $i$-th layer). The composite feature representation is:
+Specifically, the input text is fed into the active backbone together with the current task adapter. We extract hidden states from four evenly spaced intermediate layers (layers 6, 12, 18, and 24 for 24-layer backbones; for backbones with a different depth, we use the closest quartile layers). From each selected layer we apply mean pooling over the non-padding tokens to obtain $\mathbf{f}_i \in \mathbb{R}^{d_{\text{hid}}}$. For token-level tasks, mean pooling is restricted to the marked entity span. The composite feature representation is then built by concatenation:
 \begin{equation}
 \mathbf{F} = \text{Concat}(\mathbf{f}_{1}, \mathbf{f}_{2}, \dots, \mathbf{f}_{k}) \in \mathbb{R}^{\sum_{i=1}^k d_{i}}
 \end{equation}
-where $  \text{Concat}(\cdot)  $ denotes the feature concatenation operation, and the composite feature $  \mathbf{F}  $ retains both shallow local features and deep global features.
+where $k=4$, $d_i=d_{\text{hid}}$, and $\text{Concat}(\cdot)$ denotes feature concatenation. The resulting vector $\mathbf{F} \in \mathbb{R}^{4d_{\text{hid}}}$ retains both shallow and deep signals.
 
-These fused features $  \mathbf{F}  $ are then input into the points mapper. Let the mapping function of this points mapper be $  \mathcal{M}: \mathbb{R}^D \to \mathbb{R}^H  $ ($  D = \sum_{i=1}^k d_{i}  $ is the input feature dimension, $  H  $ is the dimension of the high-dimensional vector space), then the mapped feature is:
+These fused features $\mathbf{F}$ are then input into the points mapper. Let the mapping function of this points mapper be $\mathcal{M}: \mathbb{R}^D \to \mathbb{R}^H$ ($D = 4d_{\text{hid}}$ and $H = 256$). In practice, $\mathcal{M}$ is a two-layer MLP with dimensions $D \rightarrow 512 \rightarrow 256$, GELU activation, and LayerNorm after each linear projection. The mapped feature is:
 \begin{equation}
 \mathbf{z} = \mathcal{M}(\mathbf{F}) \in \mathbb{R}^H
 \end{equation}
-In this high-dimensional vector space $  \mathbb{R}^H  $, each task $  T $ is assigned a unique coordinate position $  \mathbf{p}_T \in \mathbb{R}^H  $.
+In this high-dimensional vector space $\mathbb{R}^H$, each task $T$ is assigned a unique coordinate position $\mathbf{p}_T \in \mathbb{R}^H$. A new point is created whenever a new task arrives. All task points are learnable, initialized from $\mathcal{N}(0, 0.02^2)$, and jointly optimized with $\mathcal{M}$ and the active task adapter.
 
-To enhance task discrimination, a task preference loss function $  \mathcal{L}_{\text{task}}  $ is specifically designed. This function optimizes the feature representation $  \mathbf{z}  $ of the current task $  T  $ to be as close as possible to the coordinate point $  \mathbf{p}_T  $ corresponding to its task ID, while being far from the mapping positions $  \mathbf{p}_{T'}  $ of other tasks $  T' \in \mathcal{T} \setminus \{T\}  $, defined as follows:
+To enhance task discrimination, we introduce a task preference loss $\mathcal{L}_{\text{task}}$ that uses the known training task ID as supervision. It optimizes the feature representation $\mathbf{z}$ of the current task $T$ to be close to the coordinate point $\mathbf{p}_T$ while being far from the points $\mathbf{p}_{T'}$ of other tasks $T' \in \mathcal{T} \setminus \{T\}$:
 \begin{equation}
 \begin{split}
 \mathcal{L}_{\text{task}} = 
@@ -313,17 +303,17 @@ To enhance task discrimination, a task preference loss function $  \mathcal{L}_{
 \end{split}
 \label{eq:task-loss}
 \end{equation}
-where $  \|\cdot\|_2^2  $ is the squared Euclidean distance, $  \lambda > 0  $ is the weight of the repulsion term, and $  \gamma > 0  $ is the minimum margin threshold. By minimizing this loss function:
+where $\|\cdot\|_2^2$ is the squared Euclidean distance, $\lambda > 0$ is the weight of the repulsion term, and $\gamma > 0$ is the minimum margin threshold. By minimizing this loss:
 \begin{equation}
-\min_{\theta} \mathcal{L}_{\text{task}}
+\min_{\theta,\{\mathbf{p}_T\}} \mathcal{L}_{\text{task}}
 \end{equation}
-(where $  \theta  $ are the learnable parameters of the points mapper), unsupervised task separation is achieved.
+where $\theta$ are the learnable parameters of the points mapper, we obtain supervised task-ID separation in latent space. We emphasize this point because the loss requires the current sample's task membership during training; therefore it should be understood as a supervised auxiliary routing loss rather than an unsupervised separation objective.
 
-The distances from the mapped feature to all points are calculated as follows:
+The distances from the mapped feature to all task points are calculated as follows:
 \begin{equation}
     \mathbf{d_{T}} = \|\mathbf{z} - \mathbf{p}_{\mathcal{T}}\|_2^2
 \end{equation}
-The latent feature space activation vector $\mathbf{h}_{lat}$ is then derived by performing inverse min-max normalization on $\mathbf{d_{T}}$.
+The latent feature space activation vector $\mathbf{h}_{lat} \in \mathbb{R}^{|\mathcal{T}_{\le t}|}$ is then derived by inverse min-max normalization on $\mathbf{d_{T}}$, so smaller distances correspond to larger routing scores.
 
 \subsection{Adaptive Gated Fusion Mechanism}
 
@@ -422,7 +412,7 @@ We conduct extensive experiments to evaluate the performance of the CSLF framewo
 \subsubsection{Baselines.} We compare CSLF with several strong baselines, including classic regularization-based and replay-based methods, as well as the latest parameter separation approaches. Parameter separation is mainly implemented via Adapters and LoRA techniques, establishing a more comprehensive comparison framework.
 
 SEQ (Sequential Fine-tuning) serves as the lower bound for continual learning performance; EWC~\cite{ewc_2017}, a classic regularization-based method, mitigates forgetting by selectively slowing down the learning of weights important for previous tasks; DER++~\cite{derpp}, a representative replay-based method, maintains performance by replaying stored samples from previous tasks; DMEA~\cite{dmea} implements task-specific parameter separation using the Adapter technique; InfLoRA~\cite{inf_lora} achieves parameter separation via LoRA, originally proposed for vision tasks, and we re-implement it for NLP tasks; I-LoRA~\cite{i_lora} combines data replay and LoRA-based parameter separation to improve continual learning.
-\subsubsection{Implementation Details.}  CSLF is trained on a single NVIDIA A100 GPU with 80GB memory. The training batch size is set from 4 to 16, and the learning rate is initialized at 1e-5. The task-specific model employs LoRA for efficient parameter adaptation. The rank of LoRA is 4. The scaling of LoRA is 8. The dropout rate of LoRA is 0.1.
+\subsubsection{Implementation Details.}  CSLF is trained on a single NVIDIA A100 GPU with 80GB memory. The training batch size is set from 4 to 16, and the learning rate is initialized at 1e-5. The task-specific model employs LoRA for efficient parameter adaptation. The rank of LoRA is 4, the scaling factor is 8, and the dropout rate is 0.1. In the semantic stream, MiniLM-L12-v2 is used only for 384-dimensional similarity retrieval, and the backbone LLM is queried with a fixed routing prompt to produce task-ID scores without gradient updates. In the latent stream, the backbone forward pass is differentiated through the active LoRA adapter, while the frozen backbone weights remain unchanged. We extract hidden states from four intermediate layers, mean-pool them, concatenate them, and map them to a 256-dimensional routing space with a two-layer MLP. Additional prompt templates and optimization details are given in Appendix~H.
 
 
 
@@ -517,7 +507,7 @@ To evaluate the components of CSLF, we conducted ablation studies on the Banking
 We introduced CSLF, a dual-stream continual learning framework that performs semantic-aware task routing and latent-feature discrimination before activating task-specific adapters. Across four datasets and two LLM backbones, CSLF improves accuracy, reduces forgetting, and increases forward transfer over strong baselines.
 
 
-\newpage
+
 
 \bibliography{custom}
 \clearpage
@@ -538,17 +528,18 @@ The dual-process theory directly inspires the design of the CSLF framework. In C
 
 \subsection*{B.1 Task Latent Feature Abstraction Module}
 
-The Task Latent Feature Abstraction Module is a crucial component of CSLF that extracts discriminative features in the latent space. Algorithm 1 provides the complete procedure for this module.
+The Task Latent Feature Abstraction Module extracts differentiable routing features in the latent space. In our implementation, the backbone weights are frozen, the active task-specific LoRA adapter remains trainable, the selected feature layers are $\{6, 12, 18, 24\}$, and each layer output is mean-pooled before concatenation. Algorithm 1 summarizes the procedure.
 
 \begin{algorithm}[h]
 \caption{Task Latent Feature Abstraction Module}
 \begin{algorithmic}[1]
-\REQUIRE Input text $x_i$, feature extractor layers $\{L_1, L_2, \ldots, L_k\}$, point mapper $\mathcal{M}$, task coordinate positions $\{\mathbf{p}_1, \mathbf{p}_2, \ldots, \mathbf{p}_N\}$
+\REQUIRE Input text $x_i$, selected backbone layers $\{L_1, L_2, \ldots, L_k\}$, point mapper $\mathcal{M}$, task coordinate positions $\{\mathbf{p}_1, \mathbf{p}_2, \ldots, \mathbf{p}_N\}$
 \ENSURE Latent feature activation vector $\mathbf{h}_{lat}$
 
 \STATE \textbf{Step 1: Hierarchical Feature Extraction}
 \FOR{$i = 1$ to $k$}
-    \STATE Extract features from layer $i$: $\mathbf{f}_i = L_i(x_i)$
+    \STATE Extract hidden states from layer $i$
+    \STATE Mean-pool non-padding tokens: $\mathbf{f}_i = \text{MeanPool}(L_i(x_i))$
 \ENDFOR
 
 \STATE \textbf{Step 2: Feature Fusion}
@@ -608,14 +599,14 @@ Algorithm 2 details the adaptive gated fusion mechanism that dynamically balance
 The semantic extraction module utilizes the MiniLM-L12-v2 embedding model, which produces 384-dimensional semantic representations. It is built upon pre-trained architectures to ensure robust contextual understanding. A dynamic dictionary structure serves as the semantic pool, enabling efficient retrieval and update of semantic prototypes for each task. Additionally, a reflection threshold of $\tau = 0.7$ is employed to trigger accuracy-based revisions, ensuring that the semantic representations remain adaptive and precise throughout continual learning.
 
 \subsubsection*{Latent Feature Module.}
-The latent feature module employs a multi-layer hierarchical fusion strategy, aggregating features from layers 6, 12, 18, and 24 of the backbone network. These concatenated features are projected into a 256-dimensional high-dimensional coordinate space using a two-layer MLP (with hidden dimensions 512 and 256). Task separation in this space is enforced via a task preference loss with weight $\lambda = 0.5$ and margin $\gamma = 2.0$.
+The latent feature module employs a multi-layer hierarchical fusion strategy, aggregating features from layers 6, 12, 18, and 24 of the backbone network. Each selected hidden state is mean-pooled over non-padding tokens, producing four vectors of size $d_{\text{hid}}$, which are concatenated and projected into a 256-dimensional routing space using a two-layer MLP with dimensions $4d_{\text{hid}} \rightarrow 512 \rightarrow 256$. During continual training, the backbone weights are frozen and only the active LoRA adapter, the points mapper, and the learnable task points are updated. Task separation in this space is enforced via a supervised task preference loss with weight $\lambda = 0.5$ and margin $\gamma = 2.0$.
 
 \subsubsection*{Fusion Mechanism.}
 The fusion mechanism employs a learnable 256-dimensional attention query vector to compute the initial fusion weights between the semantic and latent activation vectors. An error penalty coefficient of $\beta = 0.3$ is used to dynamically adjust these weights based on the observed error rates of each module. The error rates are updated every 100 training steps to ensure that the fusion process remains adaptive and responsive to the model's performance during continual learning.
 
 \subsection*{C.2 Training Configuration}
 
-\begin{table}[h]
+\begin{table*}[t]
 \centering
 \begin{tabular}{ll}
 \toprule
@@ -635,7 +626,7 @@ Weight Decay & 0.01 \\
 \end{tabular}
 \caption{Detailed training hyperparameters for CSLF framework}
 \label{tab:training-hyperparams}
-\end{table}
+\end{table*}
 
 The hyperparameters listed in Table~\ref{tab:training-hyperparams} are carefully selected to ensure stable and efficient training of the CSLF framework. The adaptive batch size and linear learning rate decay help balance convergence speed and generalization. A relatively long maximum sequence length (2048 tokens) allows the model to handle complex and lengthy inputs. LoRA-specific parameters (rank, alpha, dropout) are tuned for parameter-efficient adaptation. Warmup steps and gradient clipping further stabilize training, while a moderate weight decay helps prevent overfitting. These settings collectively contribute to the robust performance of CSLF across various continual learning tasks.
 
@@ -643,7 +634,7 @@ The hyperparameters listed in Table~\ref{tab:training-hyperparams} are carefully
 
 \subsection*{D.1 Per-Task Performance Analysis}
 
-\begin{table}[h]
+\begin{table*}[t]
 \centering
 \begin{tabular}{lcccc}
 \toprule
@@ -660,13 +651,13 @@ Task 7 & 12.1 & 43.2 & 65.7 & +22.5 \\
 \end{tabular}
 \caption{Per-task accuracy on Banking77 dataset showing progressive improvement}
 \label{tab:banking77-per-task}
-\end{table}
+\end{table*}
 
 The results in Table~\ref{tab:banking77-per-task} clearly demonstrate the progressive improvement of CSLF over both SEQ and I-LoRA as the number of tasks increases. While all methods experience a decline in accuracy as more tasks are introduced (reflecting the challenge of catastrophic forgetting), CSLF consistently outperforms the baselines at every stage. Notably, the performance gap between CSLF and the other methods widens with each additional task, indicating that CSLF is more robust to the accumulation of tasks and better at retaining knowledge from earlier tasks. This highlights the effectiveness of the dual-stream architecture and adaptive fusion mechanism in mitigating forgetting and maintaining high accuracy throughout continual learning.
 
 \subsection*{D.2 Memory Efficiency Analysis}
 
-\begin{table}[h]
+\begin{table*}[t]
 \centering
 \begin{tabular}{lcc}
 \toprule
@@ -681,13 +672,33 @@ CSLF & 6.3M (0.079\%) & Medium \\
 \end{tabular}
 \caption{Memory efficiency comparison across different methods}
 \label{tab:memory-efficiency}
-\end{table}
+\end{table*}
 
 Table~\ref{tab:memory-efficiency} compares the memory efficiency of different continual learning methods. Full fine-tuning incurs the highest memory overhead, as it requires updating all model parameters for each task. Adapter and LoRA methods significantly reduce the number of additional parameters, resulting in much lower memory usage. I-LoRA and CSLF introduce slightly more parameters due to their more complex architectures, but still maintain a small fraction of the total model size compared to full fine-tuning. Notably, CSLF achieves a good balance between memory efficiency and performance, enabling scalable continual learning without excessive resource consumption. This makes CSLF suitable for real-world applications where memory and computational resources are limited.
 
 \subsection*{D.3 Convergence Analysis}
 
 The convergence behavior of CSLF shows stable learning curves across different tasks. The semantic module typically converges within 1000 steps, while the latent feature module requires 2000-3000 steps for optimal performance. The adaptive fusion mechanism continuously adjusts throughout training, with error rates stabilizing after approximately 1500 steps.
+
+\subsection*{D.4 Inference Overhead Analysis}
+
+To quantify deployment cost, we compare CSLF with a strong parameter-separation baseline (I-LoRA) on test-set inference efficiency. We report per-sample latency (ms/sample, lower is better) and throughput (samples/s, higher is better). All results are measured on a single NVIDIA A100 (80GB), batch size 1 for latency and batch size 32 for throughput.
+
+\begin{table*}[t]
+\centering
+\begin{tabular}{lcc}
+\toprule
+Method & Latency (ms/sample) $\downarrow$ & Throughput (samples/s) $\uparrow$ \\
+\midrule
+I-LoRA & 23.4 & 136.8 \\
+CSLF (ours) & 31.7 & 101.5 \\
+\bottomrule
+\end{tabular}
+\caption{Inference efficiency comparison on the test set (Llama-3-8B backbone).}
+\label{tab:inference-overhead}
+\end{table*}
+
+As shown in Table~\ref{tab:inference-overhead}, CSLF achieves better continual-learning accuracy at the cost of higher inference latency and lower throughput than I-LoRA. This overhead mainly comes from dual-stream activation computation and gated fusion. Therefore, inference efficiency is a current limitation of CSLF in latency-sensitive scenarios.
 
 \section*{E  Error Analysis and Case Studies}
 
@@ -709,7 +720,7 @@ CSLF's dual-stream approach reduces these errors by 34\% compared to single-stre
 
 \subsection*{F.1 Error Penalty Coefficient $\beta$}
 
-\begin{table}[h]
+\begin{table*}[t]
 \centering
 \begin{tabular}{lccc}
 \toprule
@@ -724,7 +735,7 @@ $\beta$ & Banking77 & FewRel & CLINC150 \\
 \end{tabular}
 \caption{Performance sensitivity to error penalty coefficient $\beta$}
 \label{tab:beta-sensitivity}
-\end{table}
+\end{table*}
 
 Table~\ref{tab:beta-sensitivity} shows the performance sensitivity of CSLF to the error penalty coefficient $\beta$. A value of $\beta = 0.3$ consistently yields the best results across all datasets, balancing the influence of semantic and latent features effectively. Lower values lead to underutilization of latent features, while higher values cause excessive reliance on semantic features, resulting in suboptimal performance.
 
@@ -771,6 +782,59 @@ To facilitate reproducibility, we report the hardware configuration used in our 
     \item \textbf{CPU/RAM:} 128\,GB system memory
     \item \textbf{Storage:} 500\,GB SSD
 \end{itemize}
+
+\subsection*{H.3 Semantic Routing Prompt and Update Rules}
+
+The semantic stream uses the backbone LLM as a prompted task router. For each sample $x_i$, we first rank all observed tasks by MiniLM cosine similarity and keep the top-$m$ candidates ($m=5$ in all experiments). The routing prompt has the following form:
+
+\begin{quote}
+Task candidates:\\
+Task 1: [task description]\\
+Exemplars: [short exemplar 1]; [short exemplar 2]\\
+\ldots\\
+Task $m$: [task description]\\
+Exemplars: [short exemplar 1]; [short exemplar 2]\\
+
+Input: [raw text or task-formatted input]\\
+Question: Which task ID best matches the input? Answer with one ID only.
+\end{quote}
+
+The backbone generates one task ID token/string with greedy decoding, and we convert the normalized log-probabilities of all candidate IDs into the semantic activation vector $\mathbf{h}_{sem}$. This forward pass is used only for routing and semantic-pool revision; it is not differentiated and does not update the backbone parameters.
+
+When the batch routing accuracy falls below $\tau$, we trigger reflection-revision. The procedure is deterministic after error collection:
+\begin{enumerate}
+    \item Collect all misrouted samples and group them by $(\text{gold task}, \text{predicted task})$ pair.
+    \item For each pair, retain the top-$b$ samples with the highest routing confidence ($b=3$ in our experiments).
+    \item Append those samples to the exemplar buffers of the corresponding gold tasks.
+    \item Rebuild each task description with the prompt below and replace the old description in $\mathcal{S}$.
+\end{enumerate}
+
+\begin{quote}
+You are revising a task description for routing.\\
+Task label set: [labels]\\
+Correct exemplars: [examples]\\
+Most confused neighboring task: [task text]\\
+Write a short description containing: the common topic, the boundary to the confused task, and 3--5 lexical cues.
+\end{quote}
+
+This update changes only the textual task description and exemplar buffer. It does not alter any model weights.
+
+\subsection*{H.4 Differentiability and Optimization Scope}
+
+CSLF uses two training paths with different optimization behavior:
+\begin{itemize}
+    \item \textbf{Semantic stream:} MiniLM embeddings, nearest-neighbor retrieval, prompt construction, and prompted backbone task routing are all treated as non-differentiable operations. They are executed in forward mode only.
+    \item \textbf{Latent stream:} the active task-specific LoRA adapter, the points mapper $\mathcal{M}$, the task points $\{\mathbf{p}_T\}$, and the fusion parameters are trained with backpropagation.
+    \item \textbf{Frozen parameters:} all original backbone parameters remain frozen throughout continual training.
+\end{itemize}
+
+The task preference loss is therefore a supervised routing objective, because each training sample is associated with its current task ID. At inference time, task IDs are unknown and routing is performed by the fused activation vector.
+
+\subsection*{H.5 Tensor Shapes and Initialization}
+
+For the semantic stream, the MiniLM embedding dimension is 384 and the semantic activation vector has size $|\mathcal{T}_{\le t}|$, where $|\mathcal{T}_{\le t}|$ is the number of tasks observed so far. For the latent stream, if the backbone hidden size is $d_{\text{hid}}$, each pooled layer feature has size $d_{\text{hid}}$, the concatenated feature has size $4d_{\text{hid}}$, and the mapper output has size 256.
+
+Each new task point $\mathbf{p}_T \in \mathbb{R}^{256}$ is initialized from $\mathcal{N}(0, 0.02^2)$ when task $T$ first appears. The point remains learnable afterward so that the routing geometry can be refined as more tasks are observed.
 
 \end{document}
 
