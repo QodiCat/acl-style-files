@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2025) (preloaded format=pdflatex 2025.5.15)  25 MAY 2026 22:56
+This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2025) (preloaded format=pdflatex 2025.5.15)  26 MAY 2026 09:43
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -585,18 +585,15 @@ Package pdftex.def Info: main_2.pdf  used on input line 154.
 
 
 [2]
-Underfull \vbox (badness 3029) has occurred while \output is active []
-
-
 
 
 
 [3 <./main_2.pdf>]
+
+
 Underfull \hbox (badness 1122) in paragraph at lines 231--232
 []\T1/ptm/m/n/10.95 (+20) This log-i-cal ver-i-fi-ca-tion loop helps con-trol
  []
-
-
 
 Package hyperref Info: bookmark level for unknown algorithm defaults to 0 on input line 249.
 
@@ -607,54 +604,56 @@ Underfull \hbox (badness 1635) in paragraph at lines 262--263
 
 
 [4]
-Overfull \hbox (36.38809pt too wide) detected at line 313
-[][][]\OMS/cmsy/m/n/10.95 L[] \OT1/cmr/m/n/10.95 = [] +\OML/cmm/m/it/10.95 ^^U \OMS/cmsy/m/n/10.95 ^^A []
- []
 
 
-
-
-Overfull \hbox (1.65279pt too wide) detected at line 340
+Overfull \hbox (1.65279pt too wide) detected at line 342
 []
  []
 
 
 
 [5]
-Overfull \hbox (37.61955pt too wide) in paragraph at lines 377--412
+Overfull \hbox (37.61955pt too wide) in paragraph at lines 379--414
  [][] 
  []
 
 
-Underfull \hbox (badness 5175) in paragraph at lines 417--418
-\T1/ptm/m/n/10.95 (+20) We use four stan-dard bench-marks: Bank-
- []
 
 
-
-
-Overfull \hbox (13.3277pt too wide) detected at line 441
-[][][]\OML/cmm/m/it/10.95 FWT \OT1/cmr/m/n/10.95 = [] [] []
- []
-
-
-Underfull \hbox (badness 3364) in paragraph at lines 445--446
-\T1/ptm/m/n/10.95 (+20) CSLF's su-pe-rior per-for-mance across di-verse
- []
-
-
-Underfull \hbox (badness 7832) in paragraph at lines 445--446
-\T1/ptm/m/n/10.95 (+20) 75.12%/74.01%, sur-pass-ing the second-best
+Underfull \hbox (badness 4805) in paragraph at lines 424--425
+\T1/ptm/m/n/10.95 (+20) EWC ([][]Kirk-patrick et al.[][], [][]2017[][]), a clas-sic
  []
 
 
 
 [6]
+Underfull \vbox (badness 2253) has occurred while \output is active []
 
 
 
-[7] (./acl_latex.bbl
-Underfull \hbox (badness 1622) in paragraph at lines 25--28
+
+Overfull \hbox (13.3277pt too wide) detected at line 447
+[][][]\OML/cmm/m/it/10.95 FWT \OT1/cmr/m/n/10.95 = [] [] []
+ []
+
+
+Underfull \hbox (badness 3364) in paragraph at lines 451--452
+\T1/ptm/m/n/10.95 (+20) CSLF's su-pe-rior per-for-mance across di-verse
+ []
+
+
+Underfull \hbox (badness 7832) in paragraph at lines 451--452
+\T1/ptm/m/n/10.95 (+20) 75.12%/74.01%, sur-pass-ing the second-best
+ []
+
+
+
+[7]
+
+
+
+[8] (./acl_latex.bbl
+Underfull \hbox (badness 1622) in paragraph at lines 30--33
 []\T1/ptm/m/n/10 (+20) Iñigo Casanueva, Tadas Tem£i-nas, Daniela Gerz,
  []
 
@@ -662,35 +661,35 @@ Underfull \hbox (badness 1622) in paragraph at lines 25--28
 
 
 
-[8]
-Underfull \hbox (badness 1320) in paragraph at lines 140--143
+[9]
+Underfull \hbox (badness 1320) in paragraph at lines 145--148
 []\T1/ptm/m/n/10 (+20) Yan-Shuo Liang and Wu-Jun Li. 2024.  In-flora:
  []
 
 
-Underfull \hbox (badness 1292) in paragraph at lines 155--158
+Underfull \hbox (badness 1292) in paragraph at lines 160--163
 \T1/ptm/m/n/10 (+20) ule ex-pan-sion and adap-ta-tion.  \T1/ptm/m/it/10 (+20) arXiv preprint
  []
 
 
 
 
-Underfull \hbox (badness 1043) in paragraph at lines 200--203
+Underfull \hbox (badness 1043) in paragraph at lines 210--213
 \T1/ptm/m/n/10 (+20) ing with low rank adap-ta-tion.  \T1/ptm/m/it/10 (+20) arXiv preprint
  []
 
 
 
-[9])
+[10])
 
 
 
-[10
+[11
 
 ]
 
 
-Overfull \hbox (4.55045pt too wide) in paragraph at lines 554--555
+Overfull \hbox (4.55045pt too wide) in paragraph at lines 566--567
 [] []$\OT1/cmr/bx/n/10.95 h[] \OT1/cmr/m/n/10.95 = []([\OML/cmm/m/it/10.95 d[]; d[]; [] ; d[]\OT1/cmr/m/n/10.95 ])$ 
  []
 
@@ -701,42 +700,42 @@ LaTeX Warning: `h' float specifier changed to `ht'.
 LaTeX Warning: `h' float specifier changed to `ht'.
 
 
-Underfull \hbox (badness 2726) in paragraph at lines 596--597
+Underfull \hbox (badness 2726) in paragraph at lines 608--609
 \T1/ptm/m/n/10.95 (+20) The se-man-tic ex-trac-tion mod-ule uti-lizes the
  []
 
 
 
-[11
+[12
 
 ]
 
 
 
-[12]
-Overfull \hbox (9.72871pt too wide) in paragraph at lines 636--649
+[13]
+Overfull \hbox (9.72871pt too wide) in paragraph at lines 648--661
  [][] 
  []
 
 
-Overfull \hbox (69.31944pt too wide) in paragraph at lines 659--670
+Overfull \hbox (69.31944pt too wide) in paragraph at lines 671--682
  [][] 
  []
 
 
 
 
-Overfull \hbox (1.4163pt too wide) in paragraph at lines 686--687
+Overfull \hbox (1.4163pt too wide) in paragraph at lines 698--699
 \T1/ptm/m/n/10.95 (-20) different classifications. Example: ``transfer money''
  []
 
 
 
-[13]
+[14]
 
 
 
-[14] (./acl_latex.aux)
+[15] (./acl_latex.aux)
  ***********
 LaTeX2e <2024-11-01> patch level 2
 L3 programming layer <2025-04-29>
@@ -745,18 +744,18 @@ Package rerunfilecheck Info: File `acl_latex.out' has not changed.
 (rerunfilecheck)             Checksum: F53031874318D633056BC9D13DFCBBEB;3752.
  ) 
 Here is how much of TeX's memory you used:
- 16810 strings out of 469590
- 262468 string characters out of 5474519
- 715702 words of memory out of 5000000
- 42866 multiletter control sequences out of 15000+600000
+ 16822 strings out of 469590
+ 262831 string characters out of 5474519
+ 715974 words of memory out of 5000000
+ 42875 multiletter control sequences out of 15000+600000
  690816 words of font info for 333 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 84i,17n,93p,1939b,713s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 84i,23n,93p,1939b,713s stack positions out of 10000i,1000n,20000p,200000b,200000s
 <c:/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx8.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmex8.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb><c:/texlive/2025/texmf-dist/fonts/type1/urw/helvetic/uhvb8a.pfb><c:/texlive/2025/texmf-dist/fonts/type1/urw/times/utmb8a.pfb><c:/texlive/2025/texmf-dist/fonts/type1/urw/times/utmr8a.pfb><c:/texlive/2025/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on acl_latex.pdf (14 pages, 639518 bytes).
+Output written on acl_latex.pdf (15 pages, 646803 bytes).
 PDF statistics:
- 722 PDF objects out of 1000 (max. 8388607)
- 620 compressed objects within 7 object streams
- 190 named destinations out of 1000 (max. 500000)
+ 747 PDF objects out of 1000 (max. 8388607)
+ 644 compressed objects within 7 object streams
+ 193 named destinations out of 1000 (max. 500000)
  60083 words of extra memory for PDF output out of 61914 (max. 10000000)
 
