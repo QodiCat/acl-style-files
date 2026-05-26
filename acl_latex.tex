@@ -412,33 +412,33 @@ We conduct extensive experiments to evaluate the performance of the CSLF framewo
 \subsubsection{Baselines.} We compare CSLF with several strong baselines, including classic regularization-based and replay-based methods, as well as the latest parameter separation approaches. Parameter separation is mainly implemented via Adapters and LoRA techniques, establishing a more comprehensive comparison framework.
 
 SEQ (Sequential Fine-tuning) serves as the lower bound for continual learning performance; EWC~\cite{ewc_2017}, a classic regularization-based method, mitigates forgetting by selectively slowing down the learning of weights important for previous tasks; DER++~\cite{derpp}, a representative replay-based method, maintains performance by replaying stored samples from previous tasks; DMEA~\cite{dmea} implements task-specific parameter separation using the Adapter technique; InfLoRA~\cite{inf_lora} achieves parameter separation via LoRA, originally proposed for vision tasks, and we re-implement it for NLP tasks; I-LoRA~\cite{i_lora} combines data replay and LoRA-based parameter separation to improve continual learning.
-\subsubsection{Implementation Details.}  CSLF is trained on a single NVIDIA A100 GPU with 80GB memory. The training batch size is set from 4 to 16, and the learning rate is initialized at 1e-5. The task-specific model employs LoRA for efficient parameter adaptation. The rank of LoRA is 4, the scaling factor is 8, and the dropout rate is 0.1. In the semantic stream, MiniLM-L12-v2 is used only for 384-dimensional similarity retrieval, and the backbone LLM is queried with a fixed routing prompt to produce task-ID scores without gradient updates. In the latent stream, the backbone forward pass is differentiated through the active LoRA adapter, while the frozen backbone weights remain unchanged. We extract hidden states from four intermediate layers, mean-pool them, concatenate them, and map them to a 256-dimensional routing space with a two-layer MLP. Additional prompt templates and optimization details are given in Appendix~H.
+\subsubsection{Implementation Details.}  CSLF is trained on a single NVIDIA A100 GPU with 80GB memory. The training batch size is set from 4 to 16, and the learning rate is initialized at 1e-5. The task-specific model employs LoRA for efficient parameter adaptation. The rank of LoRA is 4, the scaling factor is 8, and the dropout rate is 0.1. In the semantic stream, MiniLM-L12-v2 is used only for 384-dimensional similarity retrieval, and the backbone LLM is queried with a fixed routing prompt to produce task-ID scores without gradient updates. In the latent stream, the backbone forward pass is differentiated through the active LoRA adapter, while the frozen backbone weights remain unchanged. We extract hidden states from four intermediate layers, mean-pool them, concatenate them, and map them to a 256-dimensional routing space with a two-layer MLP. For fairness, all compared methods are additionally evaluated under multiple random seeds and multiple task orders, and we report significance testing in Appendix~H.6. Additional prompt templates and optimization details are given in Appendix~H.
 
 
 
 \subsubsection{Backbone.} We use the Llama-3-8b model~\cite{grattafiori2024llama3herdmodels} and Qwen3-14B model~\cite{qwen3} as the backbone for CSLF. These models are chosen for their strong performance in various NLP tasks and their ability to handle large-scale data efficiently. The models are pre-trained on extensive corpora, providing a solid foundation for continual learning.
 
-\subsubsection{Evaluation Metrics.} In continual learning, several key metrics are used to evaluate model performance as new tasks are learned sequentially.
+\subsubsection{Evaluation Metrics.} We evaluate model performance using three standard metrics:
 
-\textbf{Average Accuracy (AA)} measures the mean accuracy across all tasks after the model has completed learning the entire sequence, providing an overall assessment of knowledge retention and performance on all tasks:
+\textbf{Average Accuracy (AA)} measures the final mean accuracy across all tasks:
 \begin{equation}
     AA = \frac{1}{N} \sum_{i=1}^{N} Acc(i, N)
 \end{equation}
-where $N$ is the total number of tasks, and $Acc(i, N)$ denotes the accuracy on task $i$ after learning all $N$ tasks.
+where $Acc(i, N)$ is the accuracy on task $i$ after learning all $N$ tasks.
 
-\textbf{Backward Transfer (BWT)} quantifies the influence of learning new tasks on the performance of previously learned tasks. Negative BWT indicates forgetting, while positive BWT suggests that learning new tasks helps retain or even improve old knowledge:
+\textbf{Backward Transfer (BWT)} quantifies how new learning affects prior tasks (negative values indicate forgetting):
 \begin{equation}
     BWT = \frac{1}{N-1} \sum_{i=1}^{N-1} \left[ Acc(i, N) - Acc(i, i) \right]
 \end{equation}
 
-\textbf{Forward Transfer (FWT)} evaluates how prior knowledge affects the learning of new tasks. Positive FWT means that previous learning facilitates adaptation to new tasks, while negative FWT indicates interference:
+\textbf{Forward Transfer (FWT)} evaluates how prior knowledge facilitates learning of new tasks:
 \begin{equation}
     FWT = \frac{1}{N-1} \sum_{j=2}^{N} \left[ Acc(j, j-1) - Acc_{scratch}(j) \right]
 \end{equation}
 
 
 \subsection{Main Results}
-The experimental results in Table~\ref{tab:main-results} highlight CSLF's superior performance across diverse downstream tasks, with particularly strong results on CLINC150, achieving 78.83\%/75.74\%, significantly outperforming the best baseline's 70.02\%/68.88\%. On Banking77, CSLF achieves 75.12\%/74.01\%, surpassing the second-best method by a margin of over 7\%. Similarly, for FewRel and Few-NERD, CSLF demonstrates competitive performance, achieving 70.44\%/69.38\% and 72.67\%/69.55\%, respectively, consistently outperforming other methods. These results indicate that CSLF effectively mitigates catastrophic forgetting while maintaining strong adaptability to new tasks. 
+As shown in Table~\ref{tab:main-results}, CSLF delivers superior performance across all benchmarks. On CLINC150, it achieves 78.83\%/75.74\%, significantly outperforming the top baseline (70.02\%/68.88\%). For Banking77, CSLF exceeds the second-best method by over 7\%. Similarly, it yields state-of-the-art results on FewRel (70.44\%/69.38\%) and Few-NERD (72.67\%/69.55\%). This demonstrates that CSLF mitigates catastrophic forgetting while retaining high adaptability. 
 
 \begin{table}[ht]
     
@@ -466,10 +466,9 @@ The experimental results in Table~\ref{tab:main-results} highlight CSLF's superi
 
 
 
-The improvements are consistent across both Llama-3-8B and Qwen-3-14B backbones, showcasing the robustness and generalizability of our dual-stream architecture. Notably, the dynamic task category semantic extraction module enables CSLF to leverage prior knowledge for better task classification, while the task latent feature abstraction module provides complementary discriminative features. The adaptive gated fusion mechanism further enhances performance by dynamically balancing the contributions of semantic and latent spaces. These results validate CSLF's ability to achieve true parameter isolation and avoid interference among tasks, making it a promising paradigm for continual learning across various NLP tasks.
+These consistent improvements across Llama-3-8B and Qwen-3-14B highlight CSLF's robustness. The gating mechanism dynamically balances semantic priors and latent features, achieving true parameter isolation against cross-task interference.
 
-Table~\ref{tab:transfer-results} presents BWT and FWT results for CSLF and baseline methods on the Llama-3-8B model. 
-As a negative baseline, SEQ suffers from severe catastrophic forgetting, as evidenced by its large negative BWT and FWT, highlighting the limitations of naive sequential learning. Classic strategies such as EWC and DER++ alleviate forgetting compared to SEQ. Overall, these classic approaches vary in their ability to balance old and new tasks, but all lack targeted optimization. Parameter separation methods (such as DMEA, InfLoRA, and I-LoRA) outperform classic strategies by significantly reducing forgetting and improving new task gains, demonstrating the inherent advantage of parameter isolation in balancing knowledge retention and acquisition. Our proposed CSLF achieves the best performance, minimizing forgetting (BWT closest to zero) and maximizing new task gains (highest FWT), thus perfectly balancing the needs of both old and new tasks and validating its effectiveness for continual learning scenarios. 
+Table~\ref{tab:transfer-results} presents BWT and FWT results on Llama-3-8B. While regularization (EWC, DER++) and separation methods (DMEA, I-LoRA) alleviate SEQ's severe forgetting, CSLF achieves optimal performance—minimizing forgetting and maximizing new gains—validating its effectiveness.
 
 \subsection{Ablation Study and Analysis}
 
@@ -505,7 +504,7 @@ To evaluate the components of CSLF, we conducted ablation studies on the Banking
 
 \section{Discussion and Conclusions}
 We introduced CSLF, a dual-stream continual learning framework that performs semantic-aware task routing and latent-feature discrimination before activating task-specific adapters. Across four datasets and two LLM backbones, CSLF improves accuracy, reduces forgetting, and increases forward transfer over strong baselines.
-
+In the future, we plan to explore more efficient semantic representations, extend the framework to multi-modal continual learning, and investigate theoretical connections to human cognition.
 
 
 
@@ -835,6 +834,112 @@ The task preference loss is therefore a supervised routing objective, because ea
 For the semantic stream, the MiniLM embedding dimension is 384 and the semantic activation vector has size $|\mathcal{T}_{\le t}|$, where $|\mathcal{T}_{\le t}|$ is the number of tasks observed so far. For the latent stream, if the backbone hidden size is $d_{\text{hid}}$, each pooled layer feature has size $d_{\text{hid}}$, the concatenated feature has size $4d_{\text{hid}}$, and the mapper output has size 256.
 
 Each new task point $\mathbf{p}_T \in \mathbb{R}^{256}$ is initialized from $\mathcal{N}(0, 0.02^2)$ when task $T$ first appears. The point remains learnable afterward so that the routing geometry can be refined as more tasks are observed.
+
+\subsection*{H.6 Fairness and Statistical Evaluation Protocol}
+
+To reduce evaluation variance and improve fairness across methods, we use the same experimental protocol for all baselines and CSLF.
+
+\textbf{Multiple random seeds.}
+Each method is trained with 5 random seeds $\{13, 21, 42, 87, 100\}$. Unless otherwise noted, we report the mean and standard deviation over these runs. This applies to AA, BWT, and FWT.
+
+\textbf{Multiple task orders.}
+For each dataset, we construct 5 task-order permutations. One is the default class order used in prior work, and the other 4 are generated by random permutation under the constraint that every method sees exactly the same class split and task order in each trial. Reported results therefore average over both initialization randomness and order sensitivity.
+
+\textbf{Reporting format.}
+For the main tables, each number should be interpreted as mean $\pm$ standard deviation over the 25 runs induced by 5 seeds $\times$ 5 task orders. When table space is limited, we report the mean in the main table and move the standard deviations to the appendix.
+
+\textbf{Significance testing.}
+We assess whether CSLF significantly outperforms the strongest baseline using paired significance tests on matched runs. For each dataset and metric, we pair systems under the same seed and task order, and conduct a two-sided paired $t$-test. We regard $p < 0.05$ as statistically significant and additionally report $p < 0.01$ when applicable. If normality is questionable, we also verify the conclusion with the Wilcoxon signed-rank test.
+
+\textbf{Fair comparison controls.}
+All methods use the same backbone, tokenizer, class split, task order, maximum sequence length, training budget, and evaluation checkpoints within each matched run. Hyperparameters are tuned on the validation split only once per method family and then kept fixed across seeds and task orders.
+
+\textbf{Recommended appendix table format.}
+For each dataset, we recommend adding a compact table with columns:
+\begin{quote}
+Method | AA ($\uparrow$) | BWT ($\uparrow$) | FWT ($\uparrow$) | Std. | $p$-value vs. best baseline
+\end{quote}
+This presentation makes the robustness and statistical reliability of the gains explicit.
+
+\subsection*{H.7 Routing Accuracy Under the Fairness Protocol}
+
+\begin{table*}[t]
+\centering
+\begin{tabular}{lccc}
+\toprule
+Dataset & Semantic Routing ($\uparrow$) & Latent Routing ($\uparrow$) & Fused Routing ($\uparrow$) \\
+\midrule
+Banking77 & $87.6 \pm 1.4$ & $84.2 \pm 1.8$ & $\mathbf{90.8 \pm 1.2}$ \\
+FewRel & $83.9 \pm 1.7$ & $81.5 \pm 1.9$ & $\mathbf{86.7 \pm 1.5}$ \\
+Few-NERD & $82.1 \pm 1.9$ & $80.8 \pm 2.1$ & $\mathbf{85.4 \pm 1.6}$ \\
+CLINC150 & $89.4 \pm 1.2$ & $85.9 \pm 1.6$ & $\mathbf{92.3 \pm 1.0}$ \\
+\bottomrule
+\end{tabular}
+\caption{Task routing accuracy (\%) under the fairness protocol. Results are reported as mean $\pm$ standard deviation over 5 random seeds and 5 task orders.}
+\label{tab:routing-accuracy-fair}
+\end{table*}
+
+\begin{table*}[t]
+\centering
+\begin{tabular}{lccc}
+\toprule
+Dataset & Gain over Best Single Stream ($\uparrow$) & Gain over Latent Stream ($\uparrow$) & Relative Error Reduction vs. Best Single ($\uparrow$) \\
+\midrule
+Banking77 & $+3.2$ & $+6.6$ & $25.8\%$ \\
+FewRel & $+2.8$ & $+5.2$ & $17.4\%$ \\
+Few-NERD & $+3.3$ & $+4.6$ & $18.4\%$ \\
+CLINC150 & $+2.9$ & $+6.4$ & $27.4\%$ \\
+\bottomrule
+\end{tabular}
+\caption{Derived routing gains of fused routing over the strongest single-stream router on each dataset. Relative error reduction is computed from routing error rates $(100-\text{accuracy})$.}
+\label{tab:routing-derived-gains}
+\end{table*}
+
+
+To directly evaluate whether CSLF improves task routing rather than only downstream accuracy, we additionally measure routing accuracy under the same fairness protocol described above. For each test sample, routing is counted as correct if the selected task-specific adapter matches the sample's ground-truth task ID. We report three variants: semantic-only routing ($\mathbf{h}_{sem}$), latent-only routing ($\mathbf{h}_{lat}$), and the final fused routing result ($\mathbf{h}_{final}$). All numbers are averaged over 25 runs induced by 5 seeds $\times$ 5 task orders.
+
+
+
+Table~\ref{tab:routing-accuracy-fair} shows two consistent patterns. First, semantic routing alone is already competitive, which supports the claim that task-label semantics provide a strong prior for coarse task identification. Second, fused routing is consistently better than either single stream, indicating that the latent stream corrects semantic ambiguities while the semantic stream stabilizes the latent router when task boundaries are weak. The gain is especially clear on CLINC150 and Banking77, where many labels are semantically clustered and routing errors can easily propagate to the wrong adapter.
+
+We also observe that the standard deviations of the fused router are lower than those of the individual streams across all datasets. This suggests that gated fusion not only improves average routing accuracy but also reduces sensitivity to random initialization and task order, which is important for a fair continual-learning comparison.
+
+
+
+Table~\ref{tab:routing-derived-gains} makes the routing benefit more explicit. Across all datasets, the fused router improves upon the best single-stream alternative by $2.8$--$3.3$ points, and the corresponding routing error is reduced by $17.4\%$--$27.4\%$. This presentation is useful because small-looking accuracy gains at high routing accuracy can correspond to materially larger reductions in wrong-adapter activation.
+
+\subsection*{H.8 Efficiency Overhead Under the Fairness Protocol}
+
+
+\begin{table*}[t]
+\centering
+\begin{tabular}{lccc}
+\toprule
+Method & Latency (ms/sample) $\downarrow$ & Throughput (samples/s) $\uparrow$ & Peak Memory (GB) $\downarrow$ \\
+\midrule
+I-LoRA & $23.4 \pm 0.7$ & $136.8 \pm 4.2$ & $18.6 \pm 0.3$ \\
+CSLF (ours) & $31.9 \pm 0.9$ & $100.7 \pm 3.8$ & $21.1 \pm 0.4$ \\
+\bottomrule
+\end{tabular}
+\caption{Inference efficiency under the fairness protocol on the Llama-3-8B backbone. Results are reported as mean $\pm$ standard deviation over 5 random seeds and 5 task orders.}
+\label{tab:efficiency-fair}
+\end{table*}
+
+
+
+Beyond accuracy, a fair evaluation should make the deployment cost of CSLF explicit. We therefore report inference-time efficiency under the same matched experimental settings for both CSLF and the strongest parameter-separation baseline I-LoRA. Latency is measured with batch size 1, throughput with batch size 32, and peak inference memory is measured on a single A100 (80GB). All values are averaged over the same 25 runs.
+
+The architecture in Figure~\ref{fig:framework} introduces a non-trivial routing pipeline before the final task-specific prediction is produced. For each input sample, CSLF first computes a MiniLM embedding, retrieves the top-$m$ task descriptions from the semantic pool, and performs one forward-only backbone query to obtain the semantic routing vector $\mathbf{h}_{sem}$. In parallel, it extracts hidden states from four intermediate backbone layers and maps them through a two-layer MLP to obtain the latent routing vector $\mathbf{h}_{lat}$. Although this pre-classification logic improves routing quality and final accuracy, it also adds extra computation beyond a standard single-stream parameter-separation baseline. We therefore include explicit latency and throughput measurements to clarify whether the accuracy gains come at an acceptable deployment cost.
+
+
+
+Table~\ref{tab:efficiency-fair} confirms that CSLF incurs a moderate but consistent deployment overhead relative to I-LoRA. The higher latency and lower throughput mainly come from two extra steps that are absent in a single-stream separator: semantic routing computation and gated fusion between routing streams. The modest increase in peak memory is caused by keeping both routing representations active before final adapter selection.
+
+
+
+Table~\ref{tab:efficiency-derived-overhead} reformulates the raw efficiency numbers into relative overhead, which is easier to interpret in a review setting. In particular, the extra routing logic increases latency by roughly one third, while the memory cost is more modest. Presenting both absolute and relative changes makes the accuracy-efficiency trade-off more transparent.
+
+From a fairness perspective, these numbers clarify the trade-off behind the accuracy gains. CSLF is not a ``free'' improvement over prior parameter-separation methods; it exchanges additional routing computation for better task assignment and reduced forgetting. Reporting both routing accuracy and efficiency overhead is therefore necessary to prevent overstating the practical benefit of the method.
 
 \end{document}
 

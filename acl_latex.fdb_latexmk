@@ -1,19 +1,19 @@
 # Fdb version 4
-["bibtex acl_latex"] 1779762924.56307 "acl_latex.aux" "acl_latex.bbl" "acl_latex" 1779763483.1089 0
+["bibtex acl_latex"] 1779772698.96776 "acl_latex.aux" "acl_latex.bbl" "acl_latex" 1779772701.33902 0
   "./acl_natbib.bst" 1779709930 47126 3d1af46d62cc9172ef6e42b56c1cd613 ""
   "./custom.bib" 1779714349 23624 8e71c6c3e2473b83bf09dbed0de6691b ""
-  "acl_latex.aux" 1779763482 31154 2ecddbc142c56603bb8ac5552fd8131a "pdflatex"
+  "acl_latex.aux" 1779772700 34338 c094a97781c48c0fd2d784d1f65008e4 "pdflatex"
   (generated)
   "acl_latex.bbl"
   "acl_latex.blg"
   (rewritten before read)
-["pdflatex"] 1779763481.03519 "c:/Users/Qodi/Desktop/EMNLP/acl-style-files/acl_latex.tex" "acl_latex.pdf" "acl_latex" 1779763483.10969 0
+["pdflatex"] 1779772699.31607 "c:/Users/Qodi/Desktop/EMNLP/acl-style-files/acl_latex.tex" "acl_latex.pdf" "acl_latex" 1779772701.33978 0
   "acl.sty" 1779709930 11927 e2c027f483aa40e577ed34264c8b0655 ""
-  "acl_latex.aux" 1779763482 31154 2ecddbc142c56603bb8ac5552fd8131a "pdflatex"
-  "acl_latex.bbl" 1779762924 18290 216988000c1cdc8ac870c2dc863f4b92 "bibtex acl_latex"
-  "acl_latex.out" 1779763482 3752 f53031874318d633056bc9d13dfcbbeb "pdflatex"
-  "acl_latex.tex" 1779763478 63044 3f7556d73bd020ee2bb88f57820c0118 ""
-  "c:/Users/Qodi/Desktop/EMNLP/acl-style-files/acl_latex.tex" 1779763478 63044 3f7556d73bd020ee2bb88f57820c0118 ""
+  "acl_latex.aux" 1779772700 34338 c094a97781c48c0fd2d784d1f65008e4 "pdflatex"
+  "acl_latex.bbl" 1779772699 18032 269e7ecbc4bf53d7a568ee522b1db11b "bibtex acl_latex"
+  "acl_latex.out" 1779772700 3752 f53031874318d633056bc9d13dfcbbeb "pdflatex"
+  "acl_latex.tex" 1779772696 70315 90c327235e32dc45d94a56c4dfa25e7b ""
+  "c:/Users/Qodi/Desktop/EMNLP/acl-style-files/acl_latex.tex" 1779772696 70315 90c327235e32dc45d94a56c4dfa25e7b ""
   "c:/texlive/2025/texmf-dist/fonts/enc/dvips/base/8r.enc" 1747300884 4850 80dc9bab7f31fb78a000ccfed0e27cab ""
   "c:/texlive/2025/texmf-dist/fonts/map/fontname/texfonts.map" 1747301369 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "c:/texlive/2025/texmf-dist/fonts/tfm/adobe/helvetic/phvb.tfm" 1747301685 2300 14616918391efa49ac8b481a75fbdc1a ""
